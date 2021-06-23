@@ -1,0 +1,18 @@
+version: "1.0"
+
+steps:
+  clone:
+    title: "Cloning repository"
+    type: "git-clone"
+    repo: "wexel-nath/fake-btc-markets"
+    revision: "${{CF_BRANCH}}"
+    git: "github"
+
+  build_api:
+    title: "Building api image"
+    type: "build"
+    image_name: "wexel/fake-btc-markets-api"
+    tags:
+      - "latest"
+    working_directory: "${{clone}}"
+    dockerfile: "docker/Dockerfile.api"
