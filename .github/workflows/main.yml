@@ -29,7 +29,6 @@ jobs:
         run: bash "${GITHUB_WORKSPACE}/scripts/push.sh"
 
       - name: Deploy to swarm
-        if: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }} !== ""
         uses: sagebind/docker-swarm-deploy-action@v2
         with:
           remote_host: ssh://ec2-user@ec2-13-210-184-139.ap-southeast-2.compute.amazonaws.com
