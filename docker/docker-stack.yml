@@ -16,7 +16,7 @@ services:
       - "traefik.http.middlewares.strip.stripprefix.prefixes=/fake-btc-markets"
       - "traefik.http.routers.fake-btc-markets.middlewares=strip@docker"
       - "traefik.http.routers.fake-btc-markets.rule=PathPrefix(`/fake-btc-markets`)"
-      - "traefik.http.routers.fake-btc-markets.entrypoints=https"
+      - "traefik.http.routers.fake-btc-markets.tls=true"
       - "traefik.http.routers.fake-btc-markets.tls.certresolver=myresolver"
     deploy:
       restart_policy:
