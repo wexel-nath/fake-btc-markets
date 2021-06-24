@@ -36,5 +36,5 @@ jobs:
           ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
           args: |
             stack deploy
-            --compose-file docker/docker-stack.yaml
+            --compose-file docker/docker-stack.yml
             fake-btc-markets
