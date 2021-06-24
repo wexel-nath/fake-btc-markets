@@ -8,13 +8,14 @@ cd "$PROJ_DIR"
 PROJECT_NAME="${PROJECT_NAME:-fake-btc-markets}"
 VERSION=$(cat "$PROJ_DIR/version")
 
-build() {
-	dockerfile="./docker/Dockerfile.$1"
+push() {
+	image="wexel/$PROJECT_NAME-$1"
 
-	docker build \
-		-t "wexel/$PROJECT_NAME-$1:$VERSION" \
-		-f "$dockerfile" \
-		.
+	docker tag "$image:$VERSION" "$image:latest"
+
+	echo "Pushing $image:$VERSION"
+	docker push "$image:$VERSION"
+	docker push "$image:latest"
 }
 
-build api
+push api

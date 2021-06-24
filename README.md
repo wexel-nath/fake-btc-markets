@@ -1,2 +1,4 @@
-# fake-btc-markets [![Build Status](https://travis-ci.com/wexel-nath/fake-btc-markets.svg?branch=main)](https://travis-ci.com/wexel-nath/fake-btc-markets)
+# fake-btc-markets
+![CI](https://github.com/wexel-nath/fake-btc-markets/actions/workflows/main.yml/badge.svg)
+
 Golang API that mocks BTC Markets for testing trading bots
