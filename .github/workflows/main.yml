@@ -29,9 +29,11 @@ jobs:
         run: bash "${GITHUB_WORKSPACE}/scripts/push.sh"
 
       - name: Deploy to swarm
-        uses: sagebind/docker-swarm-deploy-action@v2
+        uses: wshihadeh/docker-deployment-action@v1
         with:
-          remote_host: ssh://ec2-user@ec2-13-210-184-139.ap-southeast-2.compute.amazonaws.com
+          remote_docker_host: ssh://ec2-user@ec2-13-210-184-139.ap-southeast-2.compute.amazonaws.com
           ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
           ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
-          args: stack deploy --compose-file docker/docker-stack.yml fake-btc-markets
+          deployment_mode: docker-swarm
+          stack_file_name: docker/docker-stack.yml
+          args: fake-btc-markets
