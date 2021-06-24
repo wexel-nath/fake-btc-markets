@@ -6,7 +6,7 @@ networks:
 
 services:
   api:
-    image: "wexel/fake-btc-market-api:${VERSION:-latest}"
+    image: "wexel/fake-btc-markets-api:${VERSION:-latest}"
     environment:
       PORT: '80'
       VERSION: "${VERSION:-latest}"
