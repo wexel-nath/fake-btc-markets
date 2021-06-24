@@ -31,7 +31,7 @@ jobs:
       - name: Deploy to swarm
         uses: wshihadeh/docker-deployment-action@v1
         with:
-          remote_docker_host: ssh://ec2-user@ec2-13-210-184-139.ap-southeast-2.compute.amazonaws.com
+          remote_docker_host: ec2-user@ec2-13-210-184-139.ap-southeast-2.compute.amazonaws.com
           ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
           ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
           deployment_mode: docker-swarm
