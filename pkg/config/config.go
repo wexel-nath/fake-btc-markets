@@ -13,9 +13,9 @@ var (
 )
 
 type Config struct{
-	ImageTag string `env:"IMAGE_TAG"`
 	LogLevel int    `env:"LOG_LEVEL,default=20"`
 	Port     int    `env:"PORT,default=80"`
+	Version  string `env:"VERSION"`
 }
 
 func Configure() {

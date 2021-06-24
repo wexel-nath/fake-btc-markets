@@ -7,14 +7,14 @@ import (
 )
 
 type healthResponse struct{
-	Status string `json:"status"`
-	Image  string `json:"image"`
+	Status  string `json:"status"`
+	Version string `json:"version"`
 }
 
 func health(w http.ResponseWriter, _ *http.Request) {
 	data := healthResponse{
-		Status: "ok",
-		Image:  config.Get().ImageTag,
+		Status:  "ok",
+		Version: config.Get().Version,
 	}
 
 	jsonResponse(w, http.StatusOK, data)

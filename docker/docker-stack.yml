@@ -6,10 +6,10 @@ networks:
 
 services:
   api:
-    image: "wexel/fake-btc-market-api:${IMAGE_TAG:-latest}"
+    image: "wexel/fake-btc-market-api:${VERSION:-latest}"
     environment:
       PORT: '80'
-      IMAGE_TAG: "${IMAGE_TAG:-latest}"
+      VERSION: "${VERSION:-latest}"
     networks:
       - traefik
     labels:
