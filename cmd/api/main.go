@@ -9,7 +9,10 @@ import (
 )
 
 func main() {
-	config.Configure()
+	err := config.Configure()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	startServer()
 }

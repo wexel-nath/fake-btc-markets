@@ -3,7 +3,6 @@ package config
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/sethvargo/go-envconfig"
 )
@@ -18,11 +17,8 @@ type Config struct{
 	Version  string `env:"VERSION"`
 }
 
-func Configure() {
-	err := envconfig.Process(context.Background(), &instance)
-	if err != nil {
-		log.Fatal(err)
-	}
+func Configure() error {
+	return envconfig.Process(context.Background(), &instance)
 }
 
 func Get() Config {

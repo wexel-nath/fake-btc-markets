@@ -16,6 +16,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Read file
+        id: read_file
+        run: echo "::set-output name=version::$(cat VERSION)"
+
       - name: Build
         run: bash "${GITHUB_WORKSPACE}/scripts/build.sh"
 
@@ -37,3 +41,5 @@ jobs:
           deployment_mode: docker-swarm
           stack_file_name: docker/docker-stack.yml
           args: fake-btc-markets
+        env:
+          VERSION: ${{ steps.read_file.outputs.version }}
