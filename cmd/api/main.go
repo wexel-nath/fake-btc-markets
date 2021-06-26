@@ -5,6 +5,7 @@ import (
 
 	"fake-btc-markets/pkg/api"
 	"fake-btc-markets/pkg/config"
+	"fake-btc-markets/pkg/database"
 	"fake-btc-markets/pkg/log"
 )
 
@@ -13,6 +14,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	_ = database.GetConnection()
 
 	startServer()
 }
