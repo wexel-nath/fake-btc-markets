@@ -1,0 +1,6 @@
+FROM postgres:13-alpine
+
+COPY ./pkg/database/sql /sql
+COPY ./scripts/db-init.sh /db-init.sh
+
+ENTRYPOINT ["/db-init.sh"]

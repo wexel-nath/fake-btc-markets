@@ -21,3 +21,31 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASS:-4Me2Test}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  db-init:
+    image: "wexel/fake-btc-markets-db-init:${VERSION:-latest}"
+    environment:
+      DB_HOST: "${DB_HOST:-db}"
+      DB_NAME: "${DB_NAME:-fake_btc_markets}"
+      DB_PASS: "${DB_PASS:-4Me2Test}"
+      DB_PORT: "${DB_PORT:-5432}"
+      DB_USER: "${DB_USER:-fake_btc_markets}"
+      POSTGRES_PASS: "${POSTGRES_PASS:-4Me2Test}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+    deploy:
+      restart_policy:
+        condition: none
+
+volumes:
+  postgres_data:

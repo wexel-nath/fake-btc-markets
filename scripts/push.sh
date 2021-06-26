@@ -31,3 +31,4 @@ push() {
 }
 
 push api
+push db-init
