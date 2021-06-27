@@ -1,0 +1,63 @@
+package coinapi
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
+
+	"fake-btc-markets/pkg/config"
+)
+
+const (
+	baseURL = "https://rest.coinapi.io"
+)
+
+type Period struct{
+	Start string  `json:"time_period_start"`
+	End   string  `json:"time_period_end"`
+	Open  float64 `json:"rate_open"`
+	High  float64 `json:"rate_high"`
+	Low   float64 `json:"rate_low"`
+	Close float64 `json:"rate_close"`
+}
+
+func GetHistoricalData(baseAsset string, quoteAsset string, timeStart time.Time) ([]Period, error) {
+	response, err := callCoinApi(baseAsset, quoteAsset, timeStart)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	defer response.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	var periods []Period
+	err = json.Unmarshal(body, &periods)
+	return periods, err
+}
+
+func callCoinApi(baseAsset string, quoteAsset string, timeStart time.Time) (*http.Response, error) {
+	url := fmt.Sprintf(
+		"%s/v1/exchangerate/%s/%s/history?period_id=1HRS&time_start=%s",
+		baseURL,
+		baseAsset,
+		quoteAsset,
+		timeStart.Format("2006-01-02T15:04:05"),
+	)
+
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	request.Header.Set("X-CoinAPI-Key", config.Get().CoinApiKey)
+
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+	return client.Do(request)
+}

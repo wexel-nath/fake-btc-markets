@@ -35,7 +35,7 @@ func marketRoutes(r chi.Router) {
 
 	r.Route("/{marketID}", func(r chi.Router) {
 		r.Get("/", Handle(getMarketByID))
-		r.Get("/ticker", Handle(unsupported))
+		r.Get("/ticker", Handle(getMarketTicker))
 		r.Get("/trades", Handle(unsupported))
 		r.Get("/orderbook", Handle(unsupported))
 		r.Get("/candles", Handle(unsupported))

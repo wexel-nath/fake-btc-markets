@@ -22,6 +22,8 @@ type Config struct{
 	DatabasePass string `env:"DB_PASS"`
 	DatabasePort int    `env:"DB_PORT"`
 	DatabaseUser string `env:"DB_USER"`
+
+	CoinApiKey string `env:"COIN_API_KEY"`
 }
 
 func Configure() error {

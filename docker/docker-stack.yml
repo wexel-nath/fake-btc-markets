@@ -10,6 +10,7 @@ services:
   api:
     image: "wexel/fake-btc-markets-api:${VERSION:-latest}"
     environment:
+      COIN_API_KEY: "${COIN_API_KEY:-}"
       DB_HOST: "${DB_HOST:-db}"
       DB_NAME: "${DB_NAME:-fake_btc_markets}"
       DB_PASS: "${DB_PASS:-4Me2Test}"

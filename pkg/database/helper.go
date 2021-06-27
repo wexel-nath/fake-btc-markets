@@ -58,4 +58,3 @@ func maybeStripName(colName string) string {
 	}
 	return split[len(split) - 1]
 }
-
