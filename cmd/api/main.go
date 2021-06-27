@@ -15,7 +15,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_ = database.GetConnection()
+	_, err = database.Connect()
+	if err != nil {
+		log.Error(err)
+	}
 
 	startServer()
 }

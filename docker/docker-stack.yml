@@ -4,6 +4,8 @@ networks:
   traefik:
     external: true
 
+  fake-btc-markets-backend:
+
 services:
   api:
     image: "wexel/fake-btc-markets-api:${VERSION:-latest}"
@@ -17,6 +19,7 @@ services:
       VERSION: "${VERSION:-latest}"
     networks:
       - traefik
+      - fake-btc-markets-backend
     labels:
       - "traefik.http.middlewares.strip.stripprefix.prefixes=/fake-btc-markets"
       - "traefik.http.routers.fake-btc-markets.middlewares=strip@docker"
@@ -32,6 +35,8 @@ services:
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASS:-4Me2Test}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+    networks:
+      - fake-btc-markets-backend
     volumes:
       - postgres_data:/var/lib/postgresql/data
     deploy:
@@ -48,6 +53,8 @@ services:
       DB_USER: "${DB_USER:-fake_btc_markets}"
       POSTGRES_PASS: "${POSTGRES_PASS:-4Me2Test}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+    networks:
+      - fake-btc-markets-backend
     deploy:
       restart_policy:
         condition: none
