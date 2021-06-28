@@ -26,9 +26,22 @@ type Period struct{
 }
 
 func GetHistoricalData(baseAsset string, quoteAsset string, timeStart time.Time) ([]Period, error) {
-	response, err := callCoinApi(baseAsset, quoteAsset, timeStart)
+	url := fmt.Sprintf(
+		"%s/v1/exchangerate/%s/%s/history?period_id=10MIN&time_start=%s&limit=%d",
+		baseURL,
+		baseAsset,
+		quoteAsset,
+		timeStart.Format("2006-01-02T15:04:05"),
+		limit,
+	)
+
+	response, err := callCoinApi(url)
 	if err != nil {
 		return nil, err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s returned %d, expected 200", url, response.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
@@ -39,19 +52,14 @@ func GetHistoricalData(baseAsset string, quoteAsset string, timeStart time.Time)
 
 	var periods []Period
 	err = json.Unmarshal(body, &periods)
-	return periods, err
+	if err != nil {
+		return nil, fmt.Errorf("unmarshalling %v returned err: %v", string(body), err)
+	}
+
+	return periods, nil
 }
 
-func callCoinApi(baseAsset string, quoteAsset string, timeStart time.Time) (*http.Response, error) {
-	url := fmt.Sprintf(
-		"%s/v1/exchangerate/%s/%s/history?period_id=10MIN&time_start=%s&limit=%d",
-		baseURL,
-		baseAsset,
-		quoteAsset,
-		timeStart.Format("2006-01-02T15:04:05"),
-		limit,
-	)
-
+func callCoinApi(url string) (*http.Response, error) {
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
