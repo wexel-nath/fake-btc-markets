@@ -7,16 +7,34 @@ import (
 	"fake-btc-markets/pkg/coinapi"
 	"fake-btc-markets/pkg/log"
 	"fake-btc-markets/pkg/market"
+
+	"github.com/robfig/cron/v3"
 )
 
 const (
+	// every day at 6:00 am
+	scheduleGetHistoricalData = "0 6 * * *"
+
 	defaultInitialDate = "2016-01-01T00:00:00Z"
 
 	baseAsset  = "ETH"
 	quoteAsset = "USD"
 )
 
-func DoGetHistoricalData() {
+func Start() {
+	log.Info("Starting cronjobs")
+	c := cron.New()
+
+	_, err := c.AddFunc(scheduleGetHistoricalData, doGetHistoricalData)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	c.Start()
+}
+
+func doGetHistoricalData() {
 	marketID := baseAsset + "-" + quoteAsset
 	log.Info("Getting historical data for %s", marketID)
 
