@@ -153,7 +153,9 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 			SELECT ` + marketPeriodColumnsString + `
 			FROM market_period
 			WHERE market_id = $1
-			AND time_period_end = $2
+			AND time_period_end BETWEEN $2 AND $3
+			ORDER BY time_period_end
+			LIMIT 1
 		),
 		closing_period AS (
 			SELECT ` + marketPeriodColumnsString + `

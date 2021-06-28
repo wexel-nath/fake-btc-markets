@@ -12,7 +12,7 @@ import (
 
 const (
 	baseURL = "https://rest.coinapi.io"
-	limit   = 10
+	limit   = 200
 )
 
 type Period struct{
