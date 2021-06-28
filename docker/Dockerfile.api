@@ -4,7 +4,7 @@ FROM golang:1.16-alpine as builder
 ENV CGO_ENABLED 0
 
 RUN apk update \
-	&& apk add --no-cache git
+	&& apk add --no-cache git ca-certificates
 
 WORKDIR /app
 COPY . .
@@ -27,6 +27,7 @@ RUN GOOS=linux \
 FROM scratch
 
 COPY --from=builder /fake-btc-markets /fake-btc-markets
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 EXPOSE 80
 ENTRYPOINT ["/fake-btc-markets"]
