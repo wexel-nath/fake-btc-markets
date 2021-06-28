@@ -68,7 +68,7 @@ func callCoinApi(url string) (*http.Response, error) {
 	request.Header.Set("X-CoinAPI-Key", config.Get().CoinApiKey)
 
 	client := http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: 30 * time.Second,
 	}
 	return client.Do(request)
 }
