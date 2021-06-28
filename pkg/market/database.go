@@ -195,3 +195,19 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 
 	return database.QueryRow(query, params, marketTickerColumns)
 }
+
+func selectLatestPeriodForMarket(marketID string) (map[string]interface{}, error) {
+	query := `
+		SELECT ` + marketPeriodColumnsString + `
+		FROM market_period
+		WHERE market_id = $1
+		ORDER BY time_period_end DESC
+		LIMIT 1
+	`
+
+	params := []interface{}{
+		marketID,
+	}
+
+	return database.QueryRow(query, params, marketPeriodColumns)
+}

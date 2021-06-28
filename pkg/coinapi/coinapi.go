@@ -12,15 +12,17 @@ import (
 
 const (
 	baseURL = "https://rest.coinapi.io"
+	limit   = 10
 )
 
 type Period struct{
-	Start string  `json:"time_period_start"`
-	End   string  `json:"time_period_end"`
-	Open  float64 `json:"rate_open"`
-	High  float64 `json:"rate_high"`
-	Low   float64 `json:"rate_low"`
-	Close float64 `json:"rate_close"`
+	Start  string  `json:"time_period_start"`
+	End    string  `json:"time_period_end"`
+	Open   float64 `json:"rate_open"`
+	High   float64 `json:"rate_high"`
+	Low    float64 `json:"rate_low"`
+	Close  float64 `json:"rate_close"`
+	Volume float64 `json:"volume_traded"`
 }
 
 func GetHistoricalData(baseAsset string, quoteAsset string, timeStart time.Time) ([]Period, error) {
@@ -42,11 +44,12 @@ func GetHistoricalData(baseAsset string, quoteAsset string, timeStart time.Time)
 
 func callCoinApi(baseAsset string, quoteAsset string, timeStart time.Time) (*http.Response, error) {
 	url := fmt.Sprintf(
-		"%s/v1/exchangerate/%s/%s/history?period_id=1HRS&time_start=%s",
+		"%s/v1/exchangerate/%s/%s/history?period_id=10MIN&time_start=%s&limit=%d",
 		baseURL,
 		baseAsset,
 		quoteAsset,
 		timeStart.Format("2006-01-02T15:04:05"),
+		limit,
 	)
 
 	request, err := http.NewRequest(http.MethodGet, url, nil)

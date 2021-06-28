@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fake-btc-markets/pkg/cron"
 	"net/http"
 
 	"fake-btc-markets/pkg/api"
@@ -19,6 +20,9 @@ func main() {
 	if err != nil {
 		log.Error(err)
 	}
+
+	// run once on startup (for now)
+	cron.DoGetHistoricalData()
 
 	startServer()
 }

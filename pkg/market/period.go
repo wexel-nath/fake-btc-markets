@@ -92,3 +92,12 @@ func NewPeriod(
 
 	return newPeriodFromRow(row)
 }
+
+func GetLatestPeriodForMarket(marketID string) (Period, error) {
+	row, err := selectLatestPeriodForMarket(marketID)
+	if err != nil {
+		return Period{}, err
+	}
+
+	return newPeriodFromRow(row)
+}
