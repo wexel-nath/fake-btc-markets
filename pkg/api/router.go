@@ -20,24 +20,38 @@ func GetRouter() chi.Router {
 }
 
 func addRoutes(r chi.Router) {
-	r.Get("/health", Handle(health))
+	r.Get("/health", handle(health))
 
 	r.Route("/v3", func(r chi.Router) {
 		r.Route("/markets", marketRoutes)
+		r.Route("/orders", orderRoutes)
 	})
 }
 
 // marketRoutes base path: /v3/markets
 func marketRoutes(r chi.Router) {
-	r.Get("/", Handle(getMarkets))
-	r.Get("/tickers", Handle(unsupported))
-	r.Get("/orderbooks", Handle(unsupported))
+	r.Get("/", handle(getMarkets))
+	r.Get("/tickers", handle(unsupported))
+	r.Get("/orderbooks", handle(unsupported))
 
 	r.Route("/{marketID}", func(r chi.Router) {
-		r.Get("/", Handle(getMarketByID))
-		r.Get("/ticker", Handle(getMarketTicker))
-		r.Get("/trades", Handle(unsupported))
-		r.Get("/orderbook", Handle(unsupported))
-		r.Get("/candles", Handle(unsupported))
+		r.Get("/", handle(getMarketByID))
+		r.Get("/ticker", handle(getMarketTicker))
+		r.Get("/trades", handle(unsupported))
+		r.Get("/orderbook", handle(unsupported))
+		r.Get("/candles", handle(unsupported))
+	})
+}
+
+// orderRoutes base path: /v3/orders
+func orderRoutes(r chi.Router) {
+	r.Post("/", handle(placeOrder))
+	r.Get("/", handle(unsupported))
+	r.Delete("/", handle(unsupported))
+
+	r.Route("/{orderID}", func(r chi.Router) {
+		r.Get("/", handle(unsupported))
+		r.Delete("/", handle(unsupported))
+		r.Put("/", handle(unsupported))
 	})
 }

@@ -37,7 +37,7 @@ func newResponseWithStatusOK(data interface{}) response {
 
 type Handler func(w http.ResponseWriter, r *http.Request) response
 
-func Handle(handler Handler) func(http.ResponseWriter, *http.Request) {
+func handle(handler Handler) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
