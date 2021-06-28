@@ -43,3 +43,4 @@ jobs:
           args: fake-btc-markets
         env:
           VERSION: ${{ steps.read_file.outputs.version }}
+          COIN_API_KEY: ${{ secrets.COIN_API_KEY }}"
