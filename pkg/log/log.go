@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"fake-btc-markets/pkg/config"
 )
@@ -57,6 +58,10 @@ func Fatal(err error, a ...interface{}) {
 
 func log(level int, format string, a ...interface{}) {
 	if level >= config.Get().LogLevel {
-		fmt.Println("[" + getLevelString(level) + "] " + fmt.Sprintf(format, a...))
+		now := time.Now().Format(time.RFC3339)
+		fmt.Println(
+			fmt.Sprintf("%s [%s]", now, getLevelString(level)),
+			fmt.Sprintf(format, a...),
+		)
 	}
 }

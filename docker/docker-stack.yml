@@ -21,6 +21,8 @@ services:
     networks:
       - traefik
       - fake-btc-markets-backend
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
     labels:
       - "traefik.http.middlewares.strip.stripprefix.prefixes=/fake-btc-markets"
       - "traefik.http.routers.fake-btc-markets.middlewares=strip@docker"
