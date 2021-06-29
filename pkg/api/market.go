@@ -35,16 +35,7 @@ func getMarkets(_ http.ResponseWriter, _ *http.Request) response {
 }
 
 func getMarketTicker(_ http.ResponseWriter, r *http.Request) response {
-	marketID := chi.URLParam(r, "marketID")
-
-	timestamp, err := time.Parse(time.RFC3339, r.URL.Query().Get("timestamp"))
-	if err != nil {
-		log.Error(err)
-		meta := newMeta(err.Error())
-		return newResponse(nil, meta, http.StatusInternalServerError)
-	}
-
-	ticker, err := market.GetTickerForTimestamp(marketID, timestamp)
+	ticker, err := doGetMarketTicker(r)
 	if err != nil {
 		log.Error(err)
 		meta := newMeta(err.Error())
@@ -52,4 +43,20 @@ func getMarketTicker(_ http.ResponseWriter, r *http.Request) response {
 	}
 
 	return newResponseWithStatusOK(ticker)
+}
+
+func doGetMarketTicker(r *http.Request) (market.Ticker, error) {
+	marketID := chi.URLParam(r, "marketID")
+	timestampString := r.URL.Query().Get("timestamp")
+
+	if timestampString == "" {
+		return market.GetLatestTicker(marketID)
+	}
+
+	timestamp, err := time.Parse(time.RFC3339, timestampString)
+	if err != nil {
+		return market.Ticker{}, err
+	}
+
+	return market.GetTickerForTimestamp(marketID, timestamp)
 }

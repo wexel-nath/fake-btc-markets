@@ -149,19 +149,23 @@ func insertPeriod(
 func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interface{}, error) {
 	openingTimestamp := timestamp.Add(-24 * time.Hour)
 	query := `
-		WITH opening_period AS (
-			SELECT ` + marketPeriodColumnsString + `
+		WITH ticker_period AS (
+			SELECT *
 			FROM market_period
 			WHERE market_id = $1
 			AND time_period_end BETWEEN $2 AND $3
+		),
+		opening_period AS (
+			SELECT *
+			FROM ticker_period
 			ORDER BY time_period_end
 			LIMIT 1
 		),
 		closing_period AS (
-			SELECT ` + marketPeriodColumnsString + `
-			FROM market_period
-			WHERE market_id = $1
-			AND time_period_end = $3
+			SELECT *
+			FROM ticker_period
+			ORDER BY time_period_end DESC
+			LIMIT 1
 		),
 		period_aggregate AS (
 			SELECT
@@ -169,9 +173,7 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 				SUM(volume_traded) AS volume24h,
 				MIN(price_low) AS low24h,
 				MAX(price_high) AS high24h
-			FROM market_period
-			WHERE market_id = $1
-			AND time_period_end BETWEEN $2 AND $3
+			FROM ticker_period
 			GROUP BY market_id
 		)
 		SELECT
