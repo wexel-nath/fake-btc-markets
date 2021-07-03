@@ -9,14 +9,6 @@ import (
 	"fake-btc-markets/pkg/order"
 )
 
-type orderRequest struct{
-	MarketID string `json:"marketId"`
-	Price    string `json:"price"`
-	Amount   string `json:"amount"`
-	Type     string `json:"type"`
-	Side     string `json:"side"`
-}
-
 func placeOrder(_ http.ResponseWriter, r *http.Request) response {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -26,7 +18,7 @@ func placeOrder(_ http.ResponseWriter, r *http.Request) response {
 		return newResponse(nil, meta, http.StatusBadRequest)
 	}
 
-	var request orderRequest
+	var request order.Order
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		log.Error(err)
@@ -34,13 +26,7 @@ func placeOrder(_ http.ResponseWriter, r *http.Request) response {
 		return newResponse(nil, meta, http.StatusBadRequest)
 	}
 
-	o, err := order.NewOrder(
-		request.MarketID,
-		request.Price,
-		request.Amount,
-		request.Type,
-		request.Side,
-	)
+	o, err := order.NewOrder(request)
 	if err != nil {
 		log.Error(err)
 		meta := newMeta(err.Error())
