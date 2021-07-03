@@ -1,4 +1,4 @@
-package helper
+package parse
 
 import (
 	"strconv"
@@ -13,6 +13,10 @@ func MustGetFloat(value string) float64 {
 	return f
 }
 
-func ParseIntAsString(value interface{}) string {
+func IntAsString(value interface{}) string {
 	return strconv.FormatInt(value.(int64), 10)
+}
+
+func BytesAsString(value interface{}) string {
+	return string(value.([]byte))
 }

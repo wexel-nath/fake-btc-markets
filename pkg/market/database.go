@@ -26,6 +26,16 @@ const (
 	columnPriceLow        = "price_low"
 	columnPriceClose      = "price_close"
 	columnVolumeTraded    = "volume_traded"
+
+	// ticker columns
+	columnBestBid    = "best_bid"
+	columnBestAsk    = "best_ask"
+	columnLastPrice  = "last_price"
+	columnVolume24h  = "volume24h"
+	columnPrice24h   = "price24h"
+	columnLow24h     = "low24h"
+	columnHigh24h    = "high24h"
+	columnTimestamp  = "timestamp"
 )
 
 var (
@@ -57,14 +67,14 @@ var (
 
 	marketTickerColumns = []string{
 		columnMarketID,
-		"best_bid",
-		"best_ask",
-		"last_price",
-		"volume24h",
-		"price24h",
-		"low24h",
-		"high24h",
-		"timestamp",
+		columnBestBid,
+		columnBestAsk,
+		columnLastPrice,
+		columnVolume24h,
+		columnPrice24h,
+		columnLow24h,
+		columnHigh24h,
+		columnTimestamp,
 	}
 )
 

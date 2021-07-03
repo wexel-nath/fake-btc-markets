@@ -1,21 +1,49 @@
 package order
 
 const (
-	statusAccepted = "Accepted"
+	statusAccepted           = "Accepted"
+	statusPlaced             = "Placed"
+	statusPartiallyMatched   = "Partially Matched"
+	statusFullyMatched       = "Fully Matched"
+	statusCancelled          = "Cancelled"
+	statusPartiallyCancelled = "Partially Cancelled"
+	statusFailed             = "Failed"
+
+	typeLimit      = "Limit"
+	typeMarket     = "Market"
+	typeStopLimit  = "Stop Limit"
+	typeStop       = "Stop"
+	typeTakeProfit = "Take Profit"
+
+	sideBid = "Bid"
+	sideAsk = "Ask"
 )
 
 var (
 	validOrderTypes = map[string]struct{}{
-		"Limit": {},
-		"Market": {},
-		"Stop Limit": {},
-		"Stop": {},
-		"Take Profit": {},
+		typeLimit:      {},
+		typeMarket:     {},
+		typeStopLimit:  {},
+		typeStop:       {},
+		typeTakeProfit: {},
 	}
 
 	validOrderSides = map[string]struct{}{
-		"Bid": {},
-		"Ask": {},
+		sideBid: {},
+		sideAsk: {},
+	}
+
+	cancellableStatusMap = map[string]string{
+		statusAccepted:         statusCancelled,
+		statusPlaced:           statusCancelled,
+		statusPartiallyMatched: statusPartiallyCancelled,
+	}
+
+	openStatuses = []string{
+		statusAccepted,
+		statusPlaced,
+		statusPartiallyMatched,
+		statusFullyMatched,
 	}
 )
 

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"fake-btc-markets/pkg/helper/parse"
 	"fake-btc-markets/pkg/log"
 )
 
@@ -43,7 +44,7 @@ func newPeriodFromRow(row map[string]interface{}) (p Period, err error) {
 }
 
 func mustParseFloat(val interface{}) float64 {
-	floatVal, err := strconv.ParseFloat(string(val.([]byte)), 64)
+	floatVal, err := strconv.ParseFloat(parse.BytesAsString(val), 64)
 	if err != nil {
 		panic(err)
 	}

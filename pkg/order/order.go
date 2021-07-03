@@ -2,10 +2,12 @@ package order
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
-	"fake-btc-markets/pkg/helper"
+	"fake-btc-markets/pkg/helper/parse"
+	"fake-btc-markets/pkg/log"
 	"fake-btc-markets/pkg/market"
 )
 
@@ -23,46 +25,46 @@ type Order struct{
 	SelfTrade     string    `json:"selfTrade"`
 	ClientOrderID *string   `json:"clientOrderId"`
 	CreationTime  time.Time `json:"creationTime"`
-
-	// derived from trades
-	OpenAmount string `json:"openAmount"`
-	Status     string `json:"status"`
+	Status        string    `json:"status"`
+	OpenAmount    string    `json:"openAmount"`
 }
 
 func newOrderFromRow(row map[string]interface{}) (o Order, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic[%v] while building order from row[%v]", r, row)
-		}
-	}()
+		defer func() {
+			if r := recover(); r != nil {
+				err = fmt.Errorf("panic[%v] while building order from row[%v]", r, row)
+			}
+		}()
 
 	order := Order{
-		ID:             helper.ParseIntAsString(row[columnOrderID]),
-		MarketID:       row[columnMarketID].(string),
-		Price:          string(row[columnOrderPrice].([]byte)),
-		Amount:         string(row[columnOrderAmount].([]byte)),
-		Side:           row[columnOrderSide].(string),
-		Type:           row[columnOrderType].(string),
-		TimeInForce:    row[columnOrderTimeInForce].(string),
-		PostOnly:       row[columnOrderPostOnly].(bool),
-		SelfTrade:      row[columnOrderSelfTrade].(string),
-		CreationTime:   row[columnOrderCreated].(time.Time),
+		ID:           parse.IntAsString(row[columnOrderID]),
+		MarketID:     row[columnMarketID].(string),
+		Price:        parse.BytesAsString(row[columnOrderPrice]),
+		Amount:       parse.BytesAsString(row[columnOrderAmount]),
+		Side:         row[columnOrderSide].(string),
+		Type:         row[columnOrderType].(string),
+		TimeInForce:  row[columnOrderTimeInForce].(string),
+		PostOnly:     row[columnOrderPostOnly].(bool),
+		SelfTrade:    row[columnOrderSelfTrade].(string),
+		CreationTime: row[columnOrderCreated].(time.Time),
+		Status:       row[columnOrderStatus].(string),
+		OpenAmount:   parse.BytesAsString(row[columnOpenAmount]),
+	}
 
-		// these should be derived from trades
-		OpenAmount: string(row[columnOrderAmount].([]byte)),
-		Status:     statusAccepted,
+	if !order.isOpen() {
+		order.OpenAmount = "0"
 	}
 
 	// nullable fields
 
 	triggerPrice := row[columnOrderTriggerPrice]
 	if triggerPrice != nil {
-		*order.TriggerPrice = string(triggerPrice.([]byte))
+		*order.TriggerPrice = parse.BytesAsString(triggerPrice)
 	}
 
 	triggerAmount := row[columnOrderTriggerAmount]
 	if triggerAmount != nil {
-		*order.TriggerAmount = string(triggerAmount.([]byte))
+		*order.TriggerAmount = parse.BytesAsString(triggerAmount)
 	}
 
 	clientOrderID := row[columnClientOrderID]
@@ -73,22 +75,31 @@ func newOrderFromRow(row map[string]interface{}) (o Order, err error) {
 	return order, nil
 }
 
+func (o Order) isOpen() bool {
+	for _, s := range openStatuses {
+		if s == o.Status {
+			return true
+		}
+	}
+	return false
+}
+
 func (o Order) validateRequest() []string {
 	errors := make([]string, 0)
 
 	_, err := market.GetMarketByID(o.MarketID)
 	if err != nil {
-		errors = append(errors, fmt.Sprintf("invalid marketId. err: %v", err))
+		errors = append(errors, "invalid marketId")
 	}
 
-	_, err = helper.StringToFloat(o.Price)
-	if err != nil {
-		errors = append(errors, fmt.Sprintf("invalid price. err: %v", err))
+	price, err := parse.StringToFloat(o.Price)
+	if err != nil || price <= 0 {
+		errors = append(errors, "invalid price")
 	}
 
-	_, err = helper.StringToFloat(o.Amount)
-	if err != nil {
-		errors = append(errors, fmt.Sprintf("invalid amount. err: %v", err))
+	amount, err := parse.StringToFloat(o.Amount)
+	if err != nil || amount <= 0 {
+		errors = append(errors, "invalid amount")
 	}
 
 	if ok := isValidOrderType(o.Type); !ok {
@@ -110,8 +121,8 @@ func NewOrder(o Order) (Order, error) {
 
 	row, err := insertSimpleOrder(
 		o.MarketID,
-		helper.MustGetFloat(o.Price),
-		helper.MustGetFloat(o.Amount),
+		parse.MustGetFloat(o.Price),
+		parse.MustGetFloat(o.Amount),
 		o.Type,
 		o.Side,
 	)
@@ -119,7 +130,89 @@ func NewOrder(o Order) (Order, error) {
 		return Order{}, err
 	}
 
-	// todo: find/place trades for order
+	// todo: place trades for order
 
 	return newOrderFromRow(row)
+}
+
+func GetOrderByID(orderID string) (Order, error) {
+	id, err := strconv.ParseInt(orderID, 10, 64)
+	if err != nil {
+		return Order{}, err
+	}
+
+	row, err := selectOrder(id)
+	if err != nil {
+		return Order{}, err
+	}
+
+	return newOrderFromRow(row)
+}
+
+func GetOrders() ([]Order, error) {
+	rows, err := selectOrders()
+	if err != nil {
+		return nil, err
+	}
+
+	orders := make([]Order, 0)
+	for _, row := range rows {
+		order, err := newOrderFromRow(row)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
+}
+
+type CancelledOrder struct{
+	OrderID       string  `json:"orderId"`
+	ClientOrderID *string `json:"clientOrderId"`
+}
+
+func newCancelledOrderFromRow(row map[string]interface{}) (c CancelledOrder, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic[%v] while building cancelled order from row[%v]", r, row)
+		}
+	}()
+
+	c = CancelledOrder{
+		OrderID: parse.IntAsString(row[columnOrderID]),
+	}
+
+	clientOrderID := row[columnClientOrderID]
+	if clientOrderID != nil {
+		*c.ClientOrderID = clientOrderID.(string)
+	}
+
+	return c, nil
+}
+
+func CancelOrder(orderID string) (CancelledOrder, error) {
+	order, err := GetOrderByID(orderID)
+	if err != nil {
+		return CancelledOrder{}, err
+	}
+
+	cancelStatus, ok := cancellableStatusMap[order.Status]
+	if !ok {
+		return CancelledOrder{}, fmt.Errorf("order status %s cannot be cancelled", order.Status)
+	}
+
+	id, err := strconv.ParseInt(orderID, 10, 64)
+	if err != nil {
+		return CancelledOrder{}, err
+	}
+
+	row, err := updateOrderStatus(id, cancelStatus)
+	if err != nil {
+		return CancelledOrder{}, err
+	}
+
+	return newCancelledOrderFromRow(row)
 }

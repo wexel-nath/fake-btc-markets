@@ -46,12 +46,12 @@ func marketRoutes(r chi.Router) {
 // orderRoutes base path: /v3/orders
 func orderRoutes(r chi.Router) {
 	r.Post("/", handle(placeOrder))
-	r.Get("/", handle(unsupported))
+	r.Get("/", handle(getOrders))
 	r.Delete("/", handle(unsupported))
 
 	r.Route("/{orderID}", func(r chi.Router) {
-		r.Get("/", handle(unsupported))
-		r.Delete("/", handle(unsupported))
+		r.Get("/", handle(getOrderByID))
+		r.Delete("/", handle(cancelOrder))
 		r.Put("/", handle(unsupported))
 	})
 }

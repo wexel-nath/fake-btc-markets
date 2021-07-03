@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS "order"(
     order_post_only      BOOLEAN          NOT NULL DEFAULT FALSE,
     order_self_trade     TEXT             NOT NULL DEFAULT 'A',
     order_created        TIMESTAMP        WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    order_status         TEXT             NOT NULL DEFAULT 'Accepted',
     client_order_id      TEXT
 );

@@ -3,6 +3,8 @@ package market
 import (
 	"fmt"
 	"time"
+
+	"fake-btc-markets/pkg/helper/parse"
 )
 
 type Ticker struct{
@@ -26,14 +28,14 @@ func newTickerFromRow(row map[string]interface{}) (t Ticker, err error) {
 
 	ticker := Ticker{
 		MarketID:  row[columnMarketID].(string),
-		BestBid:   string(row["best_bid"].([]byte)),
-		BestAsk:   string(row["best_ask"].([]byte)),
-		LastPrice: string(row["last_price"].([]byte)),
-		Volume24h: string(row["volume24h"].([]byte)),
-		Price24h:  string(row["price24h"].([]byte)),
-		Low24h:    string(row["low24h"].([]byte)),
-		High24h:   string(row["high24h"].([]byte)),
-		Timestamp: row["timestamp"].(time.Time),
+		BestBid:   parse.BytesAsString(row[columnBestBid]),
+		BestAsk:   parse.BytesAsString(row[columnBestAsk]),
+		LastPrice: parse.BytesAsString(row[columnLastPrice]),
+		Volume24h: parse.BytesAsString(row[columnVolume24h]),
+		Price24h:  parse.BytesAsString(row[columnPrice24h]),
+		Low24h:    parse.BytesAsString(row[columnLow24h]),
+		High24h:   parse.BytesAsString(row[columnHigh24h]),
+		Timestamp: row[columnTimestamp].(time.Time),
 	}
 	return ticker, nil
 }
