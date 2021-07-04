@@ -17,6 +17,9 @@ const (
 
 	sideBid = "Bid"
 	sideAsk = "Ask"
+
+	tradeLiquidityTypeMaker = "Maker"
+	tradeLiquidityTypeTaker = "Taker"
 )
 
 var (

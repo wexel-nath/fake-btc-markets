@@ -48,12 +48,3 @@ func GetTickerForTimestamp(marketID string, timestamp time.Time) (Ticker, error)
 
 	return newTickerFromRow(row)
 }
-
-func GetLatestTicker(marketID string) (Ticker, error) {
-	period, err := GetLatestPeriodForMarket(marketID)
-	if err != nil {
-		return Ticker{}, err
-	}
-
-	return GetTickerForTimestamp(marketID, period.TimePeriodEnd)
-}

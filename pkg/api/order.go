@@ -28,7 +28,8 @@ func placeOrder(_ http.ResponseWriter, r *http.Request) response {
 		return newResponse(nil, meta, http.StatusBadRequest)
 	}
 
-	o, err := order.NewOrder(request)
+	timestamp := getTimestampFromRequest(r)
+	o, err := order.NewOrder(request, timestamp)
 	if err != nil {
 		log.Error(err)
 		meta := newMeta(err.Error())

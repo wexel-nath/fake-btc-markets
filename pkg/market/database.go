@@ -164,7 +164,7 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 				time_period_end - INTERVAL '24 hours' AS period_start
 			FROM market_period
 			WHERE market_id = $1
-			AND time_period_end < $2
+			AND time_period_end <= $2
 			ORDER BY time_period_end DESC
 			LIMIT 1
 		),

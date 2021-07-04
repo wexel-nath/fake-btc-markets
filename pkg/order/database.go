@@ -2,6 +2,7 @@ package order
 
 import (
 	"strings"
+	"time"
 
 	"fake-btc-markets/pkg/database"
 )
@@ -22,6 +23,12 @@ const (
 	columnOrderStatus        = "order_status"
 	columnClientOrderID      = "client_order_id"
 	columnOpenAmount         = "open_amount"
+
+	columnTradeID            = "trade_id"
+	columnTradeCreated       = "trade_created"
+	columnTradeAmount        = "trade_amount"
+	columnTradeFee           = "trade_fee"
+	columnTradeLiquidityType = "trade_liquidity_type"
 )
 
 var (
@@ -43,6 +50,20 @@ var (
 		columnOpenAmount,
 	}
 	orderColumnsString = strings.Join(orderColumns, ", ")
+
+	tradeColumns = []string{
+		columnTradeID,
+		columnMarketID,
+		columnTradeCreated,
+		columnOrderPrice,
+		columnTradeAmount,
+		columnOrderSide,
+		columnTradeFee,
+		columnOrderID,
+		columnTradeLiquidityType,
+		columnClientOrderID,
+	}
+	tradeColumnsString = strings.Join(tradeColumns, ", ")
 )
 
 func insertSimpleOrder(
@@ -51,6 +72,7 @@ func insertSimpleOrder(
 	amount float64,
 	orderType string,
 	side string,
+	timestamp time.Time,
 ) (map[string]interface{}, error) {
 	query := `
 		WITH insert_order AS (
@@ -59,14 +81,16 @@ func insertSimpleOrder(
 				order_price,
 				order_amount,
 				order_type,
-				order_side
+				order_side,
+				order_created
 			)
 			VALUES (
 				$1,
 				$2,
 				$3,
 				$4,
-				$5
+				$5,
+				$6
 			)
 			RETURNING *
 		),
@@ -87,6 +111,7 @@ func insertSimpleOrder(
 		amount,
 		orderType,
 		side,
+		timestamp,
 	}
 
 	return database.QueryRow(query, params, orderColumns)
@@ -153,4 +178,53 @@ func updateOrderStatus(orderID int64, status string) (map[string]interface{}, er
 	}
 
 	return database.QueryRow(query, params, columns)
+}
+
+func insertTrade(
+	orderID int64,
+	amount float64,
+	fee float64,
+	liquidityType string,
+	timestamp time.Time,
+	orderStatus string,
+) (map[string]interface{}, error) {
+	query := `
+		WITH insert_trade AS (
+			INSERT INTO trade (
+				order_id,
+				trade_amount,
+				trade_fee,
+				trade_liquidity_type,
+				trade_created
+			)
+			VALUES (
+				$1,
+				$2,
+				$3,
+				$4,
+				$5
+			)
+			RETURNING *
+		),
+		update_order AS (
+			UPDATE "order"
+			SET order_status = $6
+			WHERE order_id = $1
+			RETURNING *
+		)
+		SELECT ` + tradeColumnsString + `
+		FROM insert_trade
+		JOIN update_order USING(order_id)
+	`
+
+	params := []interface{}{
+		orderID,
+		amount,
+		fee,
+		liquidityType,
+		timestamp,
+		orderStatus,
+	}
+
+	return database.QueryRow(query, params, tradeColumns)
 }

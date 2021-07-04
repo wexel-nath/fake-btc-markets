@@ -20,3 +20,8 @@ func IntAsString(value interface{}) string {
 func BytesAsString(value interface{}) string {
 	return string(value.([]byte))
 }
+
+func MustGetInt(value string) int64 {
+	i, _ := strconv.ParseInt(value, 10, 64)
+	return i
+}

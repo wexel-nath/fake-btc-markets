@@ -30,11 +30,11 @@ type Order struct{
 }
 
 func newOrderFromRow(row map[string]interface{}) (o Order, err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				err = fmt.Errorf("panic[%v] while building order from row[%v]", r, row)
-			}
-		}()
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic[%v] while building order from row[%v]", r, row)
+		}
+	}()
 
 	order := Order{
 		ID:           parse.IntAsString(row[columnOrderID]),
@@ -113,7 +113,7 @@ func (o Order) validateRequest() []string {
 	return errors
 }
 
-func NewOrder(o Order) (Order, error) {
+func NewOrder(o Order, timestamp time.Time) (Order, error) {
 	errors := o.validateRequest()
 	if len(errors) > 0 {
 		return Order{}, fmt.Errorf(strings.Join(errors, ". "))
@@ -125,14 +125,29 @@ func NewOrder(o Order) (Order, error) {
 		parse.MustGetFloat(o.Amount),
 		o.Type,
 		o.Side,
+		timestamp,
 	)
 	if err != nil {
 		return Order{}, err
 	}
 
-	// todo: place trades for order
+	order, err := newOrderFromRow(row)
+	if err != nil {
+		return Order{}, err
+	}
 
-	return newOrderFromRow(row)
+	trade, err := maybeCreateTrade(order)
+	if err != nil {
+		log.Error(err)
+		return order, nil
+	}
+
+	if parse.MustGetInt(trade.ID) > 0 {
+		// trade was executed, re-fetch order
+		return GetOrderByID(order.ID)
+	}
+
+	return order, nil
 }
 
 func GetOrderByID(orderID string) (Order, error) {

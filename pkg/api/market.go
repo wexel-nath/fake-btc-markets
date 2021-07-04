@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"fake-btc-markets/pkg/log"
 	"fake-btc-markets/pkg/market"
@@ -35,7 +34,10 @@ func getMarkets(_ http.ResponseWriter, _ *http.Request) response {
 }
 
 func getMarketTicker(_ http.ResponseWriter, r *http.Request) response {
-	ticker, err := doGetMarketTicker(r)
+	marketID := chi.URLParam(r, "marketID")
+
+	timestamp := getTimestampFromRequest(r)
+	ticker, err := market.GetTickerForTimestamp(marketID, timestamp)
 	if err != nil {
 		log.Error(err)
 		meta := newMeta(err.Error())
@@ -43,20 +45,4 @@ func getMarketTicker(_ http.ResponseWriter, r *http.Request) response {
 	}
 
 	return newResponseWithStatusOK(ticker)
-}
-
-func doGetMarketTicker(r *http.Request) (market.Ticker, error) {
-	marketID := chi.URLParam(r, "marketID")
-	timestampString := r.URL.Query().Get("timestamp")
-
-	if timestampString == "" {
-		return market.GetLatestTicker(marketID)
-	}
-
-	timestamp, err := time.Parse(time.RFC3339, timestampString)
-	if err != nil {
-		return market.Ticker{}, err
-	}
-
-	return market.GetTickerForTimestamp(marketID, timestamp)
 }

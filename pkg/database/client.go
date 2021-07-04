@@ -35,7 +35,7 @@ func Connect() (*dbClient, error) {
 	return c, err
 }
 
-type dbClient struct {
+type dbClient struct{
 	db *sql.DB
 }
 

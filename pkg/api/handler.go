@@ -7,7 +7,7 @@ import (
 	"fake-btc-markets/pkg/log"
 )
 
-type meta struct {
+type meta struct{
 	Message string `json:"message"`
 }
 
@@ -17,7 +17,7 @@ func newMeta(message string) *meta {
 	}
 }
 
-type response struct {
+type response struct{
 	Data       interface{} `json:"data"`
 	Meta       *meta       `json:"meta"`
 	StatusCode int         `json:"-"`
