@@ -157,13 +157,23 @@ func insertPeriod(
 }
 
 func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interface{}, error) {
-	openingTimestamp := timestamp.Add(-24 * time.Hour)
 	query := `
-		WITH ticker_period AS (
+		WITH period AS (
+			SELECT
+				time_period_end AS end,
+				time_period_end - INTERVAL '24 hours' AS start
+			FROM market_period
+			WHERE market_id = $1
+			AND time_period_end < $2
+			ORDER BY time_period_end DESC
+			LIMIT 1
+		),
+		ticker_period AS (
 			SELECT *
 			FROM market_period
 			WHERE market_id = $1
-			AND time_period_end BETWEEN $2 AND $3
+			AND time_period_end > (SELECT start from period)
+			AND time_period_end <= (SELECT end from period)
 		),
 		opening_period AS (
 			SELECT *
@@ -203,7 +213,6 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 
 	params := []interface{}{
 		marketID,
-		openingTimestamp,
 		timestamp,
 	}
 
