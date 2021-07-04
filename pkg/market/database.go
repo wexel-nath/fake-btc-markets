@@ -160,8 +160,8 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 	query := `
 		WITH period AS (
 			SELECT
-				time_period_end AS end,
-				time_period_end - INTERVAL '24 hours' AS start
+				time_period_end AS period_end,
+				time_period_end - INTERVAL '24 hours' AS period_start
 			FROM market_period
 			WHERE market_id = $1
 			AND time_period_end < $2
@@ -172,8 +172,8 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 			SELECT *
 			FROM market_period
 			WHERE market_id = $1
-			AND time_period_end > (SELECT start from period)
-			AND time_period_end <= (SELECT end from period)
+			AND time_period_end > (SELECT period_start from period)
+			AND time_period_end <= (SELECT period_end from period)
 		),
 		opening_period AS (
 			SELECT *
