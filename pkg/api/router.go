@@ -25,6 +25,7 @@ func addRoutes(r chi.Router) {
 	r.Route("/v3", func(r chi.Router) {
 		r.Route("/markets", marketRoutes)
 		r.Route("/orders", orderRoutes)
+		r.Route("/trades", tradeRoutes)
 	})
 }
 
@@ -54,4 +55,10 @@ func orderRoutes(r chi.Router) {
 		r.Delete("/", handle(cancelOrder))
 		r.Put("/", handle(unsupported))
 	})
+}
+
+// tradeRoutes base path: /v3/trades
+func tradeRoutes(r chi.Router) {
+	r.Get("/", handle(getTrades))
+	r.Get("/{tradeID}", handle(unsupported))
 }

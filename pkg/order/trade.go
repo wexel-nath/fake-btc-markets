@@ -7,6 +7,7 @@ import (
 	"fake-btc-markets/pkg/fee"
 	"fake-btc-markets/pkg/helper/parse"
 	"fake-btc-markets/pkg/market"
+	"fake-btc-markets/pkg/log"
 )
 
 type Trade struct{
@@ -49,6 +50,22 @@ func newTradeFromRow(row map[string]interface{}) (t Trade, err error) {
 	}
 
 	return trade, nil
+}
+
+func newTradesFromRows(rows []map[string]interface{}) ([]Trade, error) {
+	trades := make([]Trade, 0)
+
+	for _, row := range rows {
+		trade, err := newTradeFromRow(row)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+
+		trades = append(trades, trade)
+	}
+
+	return trades, nil
 }
 
 func NewTradeForOrder(order Order, timestamp time.Time) (Trade, error) {
@@ -104,4 +121,18 @@ func maybeCreateTrade(order Order) (Trade, error) {
 	}
 
 	return NewTradeForOrder(order, order.CreationTime)
+}
+
+func GetTradesByOrderID(orderID string) ([]Trade, error) {
+	id, err := parse.StringToInt(orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := selectTradesByOrderID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return newTradesFromRows(rows)
 }

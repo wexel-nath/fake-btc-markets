@@ -207,8 +207,8 @@ func selectMarketTicker(marketID string, timestamp time.Time) (map[string]interf
 			period_aggregate.high24h,
 			closing_period.time_period_end AS timestamp
 		FROM opening_period
-			JOIN closing_period USING (market_id)
-			JOIN period_aggregate USING (market_id)
+			JOIN closing_period USING(market_id)
+			JOIN period_aggregate USING(market_id)
 	`
 
 	params := []interface{}{

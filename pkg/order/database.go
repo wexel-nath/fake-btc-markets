@@ -228,3 +228,18 @@ func insertTrade(
 
 	return database.QueryRow(query, params, tradeColumns)
 }
+
+func selectTradesByOrderID(orderID int64) ([]map[string]interface{}, error) {
+	query := `
+		SELECT ` + tradeColumnsString + `
+		FROM trade
+		JOIN order USING(order_id)
+		WHERE order_id = $1
+	`
+
+	params := []interface{}{
+		orderID,
+	}
+
+	return database.QueryRows(query, params, tradeColumns)
+}

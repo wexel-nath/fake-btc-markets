@@ -2,7 +2,6 @@ package order
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -151,7 +150,7 @@ func NewOrder(o Order, timestamp time.Time) (Order, error) {
 }
 
 func GetOrderByID(orderID string) (Order, error) {
-	id, err := strconv.ParseInt(orderID, 10, 64)
+	id, err := parse.StringToInt(orderID)
 	if err != nil {
 		return Order{}, err
 	}
@@ -219,7 +218,7 @@ func CancelOrder(orderID string) (CancelledOrder, error) {
 		return CancelledOrder{}, fmt.Errorf("order status %s cannot be cancelled", order.Status)
 	}
 
-	id, err := strconv.ParseInt(orderID, 10, 64)
+	id, err := parse.StringToInt(orderID)
 	if err != nil {
 		return CancelledOrder{}, err
 	}
