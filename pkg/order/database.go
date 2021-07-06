@@ -233,7 +233,7 @@ func selectTradesByOrderID(orderID int64) ([]map[string]interface{}, error) {
 	query := `
 		SELECT ` + tradeColumnsString + `
 		FROM trade
-		JOIN order USING(order_id)
+		JOIN "order"" USING(order_id)
 		WHERE order_id = $1
 	`
 
