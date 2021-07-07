@@ -6,8 +6,8 @@ import (
 
 	"fake-btc-markets/pkg/fee"
 	"fake-btc-markets/pkg/helper/parse"
-	"fake-btc-markets/pkg/market"
 	"fake-btc-markets/pkg/log"
+	"fake-btc-markets/pkg/market"
 )
 
 type Trade struct{
@@ -113,10 +113,13 @@ func maybeCreateTrade(order Order) (Trade, error) {
 		return Trade{}, err
 	}
 
+	orderPrice := fmt.Sprintf("%.5f", parse.MustGetFloat(order.Price))
+	lastPrice := fmt.Sprintf("%.5f", parse.MustGetFloat(ticker.LastPrice))
+
 	// ticker should be within 10 minutes of order timestamp
 	// and order price must match ticker last price
 	if order.CreationTime.Sub(ticker.Timestamp) > 10 * time.Minute ||
-		order.Price != ticker.LastPrice {
+		orderPrice != lastPrice {
 		return Trade{}, nil
 	}
 
