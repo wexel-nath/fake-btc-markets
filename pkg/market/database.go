@@ -36,6 +36,8 @@ const (
 	columnLow24h     = "low24h"
 	columnHigh24h    = "high24h"
 	columnTimestamp  = "timestamp"
+
+	columnMovingAverage = "moving_average"
 )
 
 var (
@@ -233,4 +235,36 @@ func selectLatestPeriodForMarket(marketID string) (map[string]interface{}, error
 	}
 
 	return database.QueryRow(query, params, marketPeriodColumns)
+}
+
+func selectMarketSimpleMovingAverage(marketID string, timestamp time.Time, interval string) (map[string]interface{}, error) {
+	query := `
+		WITH period AS (
+			SELECT
+				time_period_end AS period_end,
+				time_period_end - $3::INTERVAL AS period_start
+			FROM market_period
+			WHERE market_id = $1
+			AND time_period_end <= $2
+			ORDER BY time_period_end DESC
+			LIMIT 1
+		),
+		ticker_period AS (
+			SELECT *
+			FROM market_period
+			WHERE market_id = $1
+			AND time_period_end > (SELECT period_start from period)
+			AND time_period_end <= (SELECT period_end from period)
+		)
+		SELECT AVG(price_close) AS ` + columnMovingAverage + `
+		FROM ticker_period
+	`
+
+	params := []interface{}{
+		marketID,
+		timestamp,
+		interval,
+	}
+
+	return database.QueryRow(query, params, []string{columnMovingAverage})
 }

@@ -13,6 +13,15 @@ func MustGetFloat(value string) float64 {
 	return f
 }
 
+func MustParseFloat(value interface{}) float64 {
+	floatVal, err := strconv.ParseFloat(BytesAsString(value), 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return floatVal
+}
+
 func StringToInt(value string) (int64, error) {
 	return strconv.ParseInt(value, 10, 64)
 }

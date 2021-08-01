@@ -108,7 +108,7 @@ func getMatchedStatus(amount float64, openAmount float64) string {
 
 // maybeCreateTrade creates a trade if the order price matches the last price at the given timestamp
 func maybeCreateTrade(order Order) (Trade, error) {
-	ticker, err := market.GetTickerForTimestamp(order.MarketID, order.CreationTime)
+	ticker, err := market.GetTickerForTimestamp(order.MarketID, order.CreationTime, nil)
 	if err != nil {
 		return Trade{}, err
 	}

@@ -8,15 +8,16 @@ import (
 )
 
 type Ticker struct{
-	MarketID  string    `json:"marketId"`
-	BestBid   string    `json:"bestBid"`
-	BestAsk   string    `json:"bestAsk"`
-	LastPrice string    `json:"lastPrice"`
-	Volume24h string    `json:"volume24h"`
-	Price24h  string    `json:"price24h"`
-	Low24h    string    `json:"low24h"`
-	High24h   string    `json:"high24h"`
-	Timestamp time.Time `json:"timestamp"`
+	MarketID       string          `json:"marketId"`
+	BestBid        string          `json:"bestBid"`
+	BestAsk        string          `json:"bestAsk"`
+	LastPrice      string          `json:"lastPrice"`
+	Volume24h      string          `json:"volume24h"`
+	Price24h       string          `json:"price24h"`
+	Low24h         string          `json:"low24h"`
+	High24h        string          `json:"high24h"`
+	Timestamp      time.Time       `json:"timestamp"`
+	MovingAverages []movingAverage `json:"moving_averages"`
 }
 
 func newTickerFromRow(row map[string]interface{}) (t Ticker, err error) {
@@ -40,11 +41,17 @@ func newTickerFromRow(row map[string]interface{}) (t Ticker, err error) {
 	return ticker, nil
 }
 
-func GetTickerForTimestamp(marketID string, timestamp time.Time) (Ticker, error) {
+func GetTickerForTimestamp(marketID string, timestamp time.Time, maNames []string) (Ticker, error) {
 	row, err := selectMarketTicker(marketID, timestamp)
 	if err != nil {
 		return Ticker{}, err
 	}
 
-	return newTickerFromRow(row)
+	ticker, err := newTickerFromRow(row)
+	if err != nil {
+		return Ticker{}, err
+	}
+
+	ticker.MovingAverages = getMovingAverages(marketID, timestamp, maNames)
+	return ticker, nil
 }

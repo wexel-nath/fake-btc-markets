@@ -9,6 +9,10 @@ import (
 	"github.com/go-chi/chi"
 )
 
+const (
+	movingAverageParam = "ma"
+)
+
 func getMarketByID(_ http.ResponseWriter, r *http.Request) response {
 	marketID := chi.URLParam(r, "marketID")
 
@@ -35,9 +39,11 @@ func getMarkets(_ http.ResponseWriter, _ *http.Request) response {
 
 func getMarketTicker(_ http.ResponseWriter, r *http.Request) response {
 	marketID := chi.URLParam(r, "marketID")
+	queryParams := r.URL.Query()
+	maNames := queryParams[movingAverageParam]
 
 	timestamp := getTimestampFromRequest(r)
-	ticker, err := market.GetTickerForTimestamp(marketID, timestamp)
+	ticker, err := market.GetTickerForTimestamp(marketID, timestamp, maNames)
 	if err != nil {
 		log.Error(err)
 		meta := newMeta(err.Error())
