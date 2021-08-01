@@ -17,8 +17,9 @@ const (
 
 	defaultInitialDate = "2016-01-01T00:00:00Z"
 
-	baseAsset  = "ETH"
+	baseAsset  = "BTC"
 	quoteAsset = "USD"
+	marketID   = baseAsset + "-" + quoteAsset
 )
 
 func Start() {
@@ -35,10 +36,9 @@ func Start() {
 }
 
 func doGetHistoricalData() {
-	marketID := baseAsset + "-" + quoteAsset
 	log.Info("Getting historical data for %s", marketID)
 
-	err := getHistoricalData(marketID)
+	err := getHistoricalData()
 	if err != nil {
 		log.Error(err)
 	}
@@ -46,7 +46,7 @@ func doGetHistoricalData() {
 	log.Info("Finished getting historical data for %s", marketID)
 }
 
-func getHistoricalData(marketID string) error {
+func getHistoricalData() error {
 	timeStart, err := time.Parse(time.RFC3339, defaultInitialDate)
 	if err != nil {
 		return err
